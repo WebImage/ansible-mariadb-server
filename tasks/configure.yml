@@ -1,0 +1,60 @@
+---
+- name: Add MariaDB 10.4 YUM repository
+  yum_repository:
+    name: MariaDB
+    description: MariaDB
+    baseurl: http://yum.mariadb.org/10.4/centos7-amd64
+    gpgkey: https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+    gpgcheck: true
+
+- name: Install MariaDB Server
+  yum:
+    name: 
+      - mariadb
+      - mariadb-server
+      - mariadb-libs
+      - MySQL-python
+    state: present
+  register: yum_mysql_install_packages
+
+- name: Check if MySQL packages were installed
+  set_fact:
+    mysql_install_packages: "{{ (yum_mysql_install_packages is defined and yum_mysql_install_packages.changed) }}"
+
+- name: Ensure mysql data directory exists
+  file:
+    path: "{{ mysql_datadir }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: 0755
+    setype: mysqld_db_t
+
+- name: Ensure mysql log file exists
+  copy:
+    content: ""
+    dest: "{{ mysql_log_error }}"
+    force: no
+    owner: mysql
+    group: mysql
+    mode: 0640
+
+- name: Copy my.cnf MySQL configuration
+  template:
+    src: my.cnf.j2
+    dest: "{{ mysql_my_conf }}"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart MySQL
+
+- name: Listen on MySQL port (firewalld)
+  firewalld:
+    port: "{{ mysql_public_port }}/tcp"
+    state: enabled
+    immediate: true
+    permanent: true
+  when:
+    - ansible_distribution_file_variety == 'RedHat'
+    - ansible_distribution_major_version == '7'
+    - mysql_public_port is not none

@@ -1,0 +1,73 @@
+# {{ ansible_managed }}
+# ROLE: {{ mysql_replication_role }}
+#
+[mysqld]
+innodb_buffer_pool_size = {{ mysql_innodb_buffer_pool_size }}
+innodb_log_file_size = {{ mysql_innodb_log_file_size }}
+join_buffer_size = {{ mysql_join_buffer_size }}
+sort_buffer_size = {{ mysql_sort_buffer_size }}
+innodb_file_per_table = {{ mysql_innodb_file_per_table }}
+
+datadir = {{ mysql_datadir }}
+socket = {{ mysql_socket }}
+symbolic-links = {{ mysql_symbolic_links }}
+sql_mode = {{ mysql_sql_mode }}
+{% if mysql_max_connections | length > 0 %}
+max_connections = {{ mysql_max_connections }}
+{% endif %}
+
+{% if mysql_replication_role == 'master' %}
+secure_file_priv = "{{ mysql_secure_file_priv }}"
+{% elif mysql_replication_role == 'slave' %}
+explicit_defaults_for_timestamp = 1
+{% endif %}
+
+#enable REPLICATION (MASTER ONLY)
+server-id = {{ mysql_server_id }}
+
+log-bin = {{ mysql_log_bin }}
+{% if mysql_replication_role == 'master' %}
+{% else %}
+{% if mysql_relay_log is defined %}
+relay-log = {{ mysql_relay_log }}
+{% endif %}
+{% if mysql_log_slave_updates is defined %}
+log-slave-updates = {{ mysql_log_slave_updates }}
+{% endif %}
+{% if mysql_read_only is defined %}
+read_only = {{ "1" if mysql_read_only else "0" }}
+{% endif %}
+
+socket = {{ mysql_socket | default("/var/lib/mysql/mysql.sock") }}
+{% if mysql_slave_skip_errors | length > 0 %}
+slave-skip-errors = {{ mysql_slave_skip_errors }}
+{% endif %}
+{% endif %}
+innodb_flush_log_at_trx_commit = {{ mysql_innodb_flush_log_at_trx_commit }}
+binlog-format = {{ mysql_binlog_format }}
+{% if mysql_max_binlog_size | length > 0 %}
+max_binlog_size = {{ mysql_max_binlog_size }}
+{% endif %}
+sync_binlog = {{ mysql_sync_binlog }}
+{% if mysql_expire_logs_days is defined %}
+expire-logs-days = {{ mysql_expire_logs_days }}
+{% endif %}
+
+# LOGGING
+log-error = {{ mysql_log_error }}
+{% if mysql_replication_role == 'master' %}
+slow_query_log_file = {{ mysql_slow_query_log_file }}
+slow_query_log = {{ mysql_slow_query_log }}
+log_queries_not_using_indexes = {{ mysql_log_queries_not_using_indexes }}
+log_throttle_queries_not_using_indexes = {{ mysql_log_throttle_queries_not_using_indexes }}
+{% else %}
+log_slow_slave_statements = ON
+{% endif %}
+
+[mysqld_safe]
+pid-file = {{ mysql_pid_file }}
+log-error = {{ mysql_log_error }}
+slow_query_log_file = {{ mysql_slow_query_log_file }}
+slow_query_log = {{ mysql_slow_query_log }}
+log_queries_not_using_indexes = {{ mysql_log_queries_not_using_indexes }}
+log_throttle_queries_not_using_indexes = {{ mysql_log_throttle_queries_not_using_indexes }}

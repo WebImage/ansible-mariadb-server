@@ -1,0 +1,75 @@
+---
+# Specify public port to open firewall (3306)
+mysql_public_port:
+# User for Ansible
+mysql_user_home: /root
+mysql_user_username: root
+mysql_user_password: root
+
+# Default root user installed by MySQL
+mysql_root_home: /root
+mysql_root_username: root
+mysql_root_password: root
+
+mysql_root_password_update: false
+mysql_user_password_udpate: false
+
+mysql_enabled_on_startup: true
+mysql_disable_root_remote_login: true
+#
+# Directory/file locations
+#
+mysql_my_conf: /etc/my.cnf
+#
+# my.cnf
+#
+mysql_innodb_buffer_pool_size: 2G
+mysql_innodb_log_file_size: 64M
+mysql_join_buffer_size: 2M
+mysql_sort_buffer_size: 2M
+mysql_innodb_file_per_table: 1
+mysql_datadir: /var/lib/mysql
+mysql_socket: /var/lib/mysql/mysql.sock
+mysql_symbolic_links: 1
+mysql_sql_mode: NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+mysql_max_connections: ""
+mysql_secure_file_priv: ""
+mysql_server_id: 1
+mysql_log_bin: mysql-bin
+mysql_innodb_flush_log_at_trx_commit: 1
+mysql_binlog_format: mixed
+mysql_max_binlog_size: ""
+mysql_sync_binlog: 1
+mysql_expire_logs_days: 0
+mysql_log_error: /var/log/mysqld.log
+mysql_slow_query_log_file: /var/log/mysqld_slow_query.log
+mysql_slow_query_log: OFF
+mysql_log_queries_not_using_indexes: ON
+mysql_log_throttle_queries_not_using_indexes: 3
+mysql_pid_file: /var/run/mysqld/mysqld.pid
+mysql_slave_skip_errors: 1032,1062
+#
+# Databases
+#
+mysql_databases: []
+#  - name: example
+#    collation: utf8_general_ci
+#    encoding: utf8
+#    replication: 1
+
+#
+# Users
+#
+mysql_users: []
+#  - name: example
+#    host: 127.0.0.1
+#    password: secret
+#    priv: *.*:USAGE
+
+#
+# Replication
+#
+mysql_replication_role: ""
+mysql_replication_master: ""
+mysql_replication_user: []
+# Same keys as mysql_users above
